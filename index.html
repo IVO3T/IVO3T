@@ -1142,9 +1142,15 @@ async function init(){
     renderDash();
     checkBackupReminder();
   } catch(e){
-    $('sync-status').textContent='● Sin conexión';
+    $('sync-status').textContent='● Error';
+    $('sync-status').style.color='#e55039';
     loading(false);
-    notify('Error conectando: '+e.message, true);
+    // Show error prominently
+    const errDiv=document.createElement('div');
+    errDiv.style.cssText='position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#b83232;color:#fff;padding:16px 24px;border-radius:10px;z-index:9999;font-size:14px;max-width:500px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3)';
+    errDiv.innerHTML='<strong>Error de conexión</strong><br>'+e.message+'<br><br><button onclick="location.reload()" style="background:#fff;color:#b83232;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600">🔄 Reintentar</button>';
+    document.body.appendChild(errDiv);
+    console.error('IVO3T init error:', e);
   }
 }
 
@@ -2523,9 +2529,7 @@ document.addEventListener('paste', function(e){
   const text = (e.clipboardData || window.clipboardData).getData('text/plain');
   if(!text) return;
   // Insert line by line preserving paragraph breaks
-  const lines = text.split(/
-?
-/);
+  const lines = text.split(/\r?\n/);
   lines.forEach(function(line, i){
     if(i > 0) document.execCommand('insertParagraph', false, null);
     if(line.trim()) document.execCommand('insertText', false, line);
